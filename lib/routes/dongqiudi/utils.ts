@@ -74,9 +74,12 @@ const ProcessFeed = async (ctx, type, id) => {
         runScripts: 'dangerously',
     });
 
-    const typeInfo = window.__NUXT__.data[0][`${type}Detail`].base_info;
+    const typeInfo =
+        type === 'team'
+            ? window.__NUXT__.data[0].teamInfo
+            : window.__NUXT__.data[0].detail.base_info;
     if (type === 'team') {
-        name = typeInfo.team_name;
+        name = typeInfo.name;
     } else if (type === 'player') {
         name = typeInfo.person_name;
     }
@@ -95,7 +98,7 @@ const ProcessFeed = async (ctx, type, id) => {
         title: article.title,
         link: `https://www.dongqiudi.com/articles/${article.id}.html`,
         category: [article.category, ...(article.secondary_category ?? [])],
-        pubDate: parseDate(article.show_time),
+        pubDate: parseDate(article.show_time, 'X'),
     }));
 
     const out = await Promise.all(
@@ -113,7 +116,7 @@ const ProcessFeed = async (ctx, type, id) => {
     return {
         title: `${name} - 相关新闻`,
         link,
-        image: type === 'team' ? typeInfo.team_logo : typeInfo.person_logo,
+        image: type === 'team' ? typeInfo.logo : typeInfo.person_logo,
         item: out,
     };
 };
@@ -123,7 +126,7 @@ const ProcessFeedType2 = (item, response) => {
         runScripts: 'dangerously',
     });
 
-    const data = dom.window.__NUXT__.data[0].newData;
+    const data = dom.window.__NUXT__.data[0].article;
 
     // filter out undefined item
     if (!data) {
@@ -135,8 +138,8 @@ const ProcessFeedType2 = (item, response) => {
         ProcessHref(body('a'));
         ProcessImg(body('img'));
         item.description = body.html();
-        item.author = data.writer;
-        item.pubDate = parseDate(data.show_time, 'X');
+        item.author = data.author;
+        item.pubDate = parseDate(data.publishedAt);
     }
 };
 

@@ -29,15 +29,15 @@ async function handler(ctx) {
         runScripts: 'dangerously',
     });
     const data = dom.window.__NUXT__.data[0];
-    const resultData = data.teamScheduleData.filter((data) => data.fs_A && data.fs_B);
+    const resultData = data.scheduleList.filter((match) => match.status === 'Played');
 
-    const teamName = data.teamDetail.base_info.team_name;
+    const teamName = data.teamInfo.name;
 
-    const out = resultData.map((result) => ({
-        title: `${result.match_title} ${result.team_A_name} ${result.fs_A}-${result.fs_B} ${result.team_B_name}`,
-        guid: result.match_id,
-        link: result.scheme.replace('dongqiudi:///game/', 'https://www.dongqiudi.com/liveDetail/'),
-        pubDate: parseDate(result.start_time),
+    const out = resultData.map((match) => ({
+        title: `${match.competition} ${match.home} ${match.homeScore}-${match.awayScore} ${match.away}`,
+        guid: match.id,
+        link: `https://www.dongqiudi.com/liveDetail/${match.id}`,
+        pubDate: parseDate(match.startTime),
     }));
 
     return {
